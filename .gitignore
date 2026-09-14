@@ -25,3 +25,4 @@ Thumbs.db
 # Test & build artifacts
 test_brief.pdf
 *.sqlite3-journal
+data/cases/

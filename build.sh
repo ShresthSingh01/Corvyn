@@ -3,8 +3,8 @@
 set -o errexit
 
 echo "==> 1. Installing Python dependencies..."
-pip install --upgrade pip
-pip install -r requirements.txt
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 
 echo "==> 2. Building Vite React Frontend..."
 cd frontend
