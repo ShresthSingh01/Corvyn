@@ -1,0 +1,14 @@
+{
+  "case_id": "CYB-DEMO-001",
+  "title": "Operation Phantom Mule (National Cyber Crime Unit)",
+  "description": "Mule account network correlation & temporal forwarding investigation",
+  "created_at": "2026-09-14T12:13:49.377517",
+  "files": [
+    "Bank_Settlement_Sheet.csv",
+    "CDR_Telecom_Records.csv"
+  ],
+  "file_hashes": {
+    "Bank_Settlement_Sheet.csv": "0a846073cdb36790d41a9346902662425f78908bd56511c07631b9541d3db340",
+    "CDR_Telecom_Records.csv": "0496c2de379c885b5880f3042dfa1bbca65b9167c4f6ef538a84164a4793c614"
+  }
+}

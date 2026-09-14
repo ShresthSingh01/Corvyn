@@ -1,0 +1,44 @@
+{
+  "case_description": "\u20b980,000 Phishing Fraud with Multi-Hop Forwarding & Shared Device Syndicate",
+  "victim": {
+    "account": "ACCOUNT:100001928374",
+    "phone": "PHONE:9876500001",
+    "loss_amount": 80000.0
+  },
+  "true_fraud_path": [
+    {
+      "from": "ACCOUNT:100001928374",
+      "to": "ACCOUNT:200002837465",
+      "amount": 80000.0,
+      "role": "Victim -> Mule A"
+    },
+    {
+      "from": "ACCOUNT:200002837465",
+      "to": "ACCOUNT:300003746582",
+      "amount": 75000.0,
+      "role": "Mule A -> Mule B"
+    },
+    {
+      "from": "ACCOUNT:300003746582",
+      "to": "ACCOUNT:400004658391",
+      "amount": 70000.0,
+      "role": "Mule B -> Cashout"
+    }
+  ],
+  "prime_mules": [
+    "ACCOUNT:200002837465",
+    "ACCOUNT:300003746582"
+  ],
+  "shared_device": "IMEI:864928049182741",
+  "traps": {
+    "shared_ip": {
+      "ip": "IP:117.211.89.44",
+      "innocent_account": "ACCOUNT:999999123456",
+      "expected": "Weak association, penalize confidence, do not flag innocent account as mule"
+    },
+    "duplicate_tx": {
+      "tx_id": "TXN_FRAUD_002",
+      "expected": "Deduplicated to 1 valid transaction"
+    }
+  }
+}

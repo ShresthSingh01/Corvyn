@@ -1,0 +1,17 @@
+{
+  "device_model": "Samsung Galaxy A52",
+  "phone_number": "9876543210",
+  "imei": "864201049281734",
+  "mac_address": "74:90:50:C2:88:F1",
+  "ip_address": "117.211.89.44",
+  "dump_timestamp": "2026-03-12 10:10:00",
+  "installed_apps": [
+    { "package": "com.sbi.official", "name": "YONO SBI" },
+    { "package": "com.cyber.mule_stealer", "name": "SBI_Account_Verification_Pay.apk" },
+    { "package": "com.anydesk.anydeskandroid", "name": "AnyDesk Remote Control" }
+  ],
+  "contacts": [
+    { "name": "Rajesh (Mule Ops)", "number": "9123456789" },
+    { "name": "Karan (Hub 2)", "number": "9988776655" }
+  ]
+}
