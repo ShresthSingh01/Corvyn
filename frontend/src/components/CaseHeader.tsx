@@ -1,6 +1,6 @@
 import React from 'react';
 import { AnalysisSummary } from '../types';
-import { ShieldAlert, Download, RefreshCw, FileCheck2, Zap, Radio, FileText } from 'lucide-react';
+import { ShieldAlert, Download, RefreshCw, FileCheck2, Zap, Radio, FileText, RotateCcw } from 'lucide-react';
 import { getReportDownloadUrl, downloadSampleZip } from '../api/client';
 
 
@@ -8,6 +8,7 @@ interface CaseHeaderProps {
   summary: AnalysisSummary | null;
   onRefresh: () => void;
   onNewCase: () => void;
+  onReset?: () => void;
   onOpenBrief?: () => void;
   loading: boolean;
 }
@@ -16,6 +17,7 @@ export const CaseHeader: React.FC<CaseHeaderProps> = ({
   summary,
   onRefresh,
   onNewCase,
+  onReset,
   onOpenBrief,
   loading,
 }) => {
@@ -172,6 +174,25 @@ export const CaseHeader: React.FC<CaseHeaderProps> = ({
             <button onClick={onNewCase} className="btn-secondary">
               <span>+ Ingest Evidence</span>
             </button>
+
+            {summary && onReset && (
+              <button
+                onClick={onReset}
+                className="btn-secondary"
+                disabled={loading}
+                title="Purge all evidence sources and reset workspace to start fresh ingestion"
+                style={{
+                  color: 'var(--accent-crimson-text)',
+                  borderColor: 'rgba(239, 68, 68, 0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                <RotateCcw size={13} />
+                <span>Reset Sources</span>
+              </button>
+            )}
 
             {summary && onOpenBrief && (
               <button

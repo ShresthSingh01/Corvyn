@@ -68,6 +68,14 @@ def test_api_endpoints():
     assert res.json()["case_id"] == case_id
     print("[PASS] API: JSON report verified.")
 
+    # 8. Reset Case Evidence
+    res = client.post(f"/api/cases/{case_id}/reset")
+    assert res.status_code == 200, res.text
+    assert res.json()["status"] == "RESET_COMPLETE"
+    res = client.get(f"/api/cases/{case_id}")
+    assert len(res.json()["files"]) == 0
+    print("[PASS] API: Case reset verified (0 files remaining).")
+
     print("\nALL API ENDPOINTS FUNCTIONING WITH 100% SUCCESS!")
 
 if __name__ == "__main__":

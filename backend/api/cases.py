@@ -130,3 +130,49 @@ def get_case(case_id: str):
     with open(meta_file, "r", encoding="utf-8") as f:
         return CaseMetadata(**json.load(f))
 
+@router.post("/reset")
+def reset_all_cases() -> Dict[str, Any]:
+    """Purges all case data, evidence files, and analysis caches to start completely fresh."""
+    if CASES_DIR.exists():
+        for p in CASES_DIR.iterdir():
+            if p.is_dir():
+                shutil.rmtree(p, ignore_errors=True)
+            elif p.is_file():
+                p.unlink(missing_ok=True)
+    CASES_DIR.mkdir(parents=True, exist_ok=True)
+    return {"status": "RESET_COMPLETE", "message": "All case containers and evidence sources have been purged."}
+
+@router.post("/{case_id}/reset")
+def reset_case(case_id: str) -> Dict[str, Any]:
+    """Purges evidence files, events, and reports for a specific case container."""
+    case_dir = CASES_DIR / case_id
+    if not case_dir.exists():
+        raise HTTPException(status_code=404, detail="Case container not found")
+
+    evidence_dir = case_dir / "evidence"
+    if evidence_dir.exists():
+        shutil.rmtree(evidence_dir, ignore_errors=True)
+    evidence_dir.mkdir(parents=True, exist_ok=True)
+
+    events_file = case_dir / "events.json"
+    if events_file.exists():
+        events_file.unlink(missing_ok=True)
+
+    pdf_file = case_dir / "Investigative_Brief.pdf"
+    if pdf_file.exists():
+        pdf_file.unlink(missing_ok=True)
+
+    meta_file = case_dir / "metadata.json"
+    if meta_file.exists():
+        try:
+            with open(meta_file, "r", encoding="utf-8") as f:
+                meta_data = json.load(f)
+            meta_data["files"] = []
+            meta_data["file_hashes"] = {}
+            with open(meta_file, "w", encoding="utf-8") as f:
+                json.dump(meta_data, f, indent=2)
+        except Exception:
+            pass
+
+    return {"status": "RESET_COMPLETE", "case_id": case_id, "message": f"Case {case_id} evidence sources purged."}
+

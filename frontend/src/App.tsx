@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AnalysisSummary, GraphNode, GraphEdge } from './types';
-import { fetchCases, fetchGraph, analyzeCase, fetchDemoStatus, seedDemoCase } from './api/client';
+import { fetchCases, fetchGraph, analyzeCase, fetchDemoStatus, seedDemoCase, resetCases } from './api/client';
 import { CaseHeader } from './components/CaseHeader';
 import { BenchmarkMetrics } from './components/BenchmarkMetrics';
 import { TemporalTimeline } from './components/TemporalTimeline';
@@ -32,6 +32,12 @@ export const App: React.FC = () => {
   // Initial load with automatic demo seeding
   useEffect(() => {
     const initApp = async () => {
+      // If user previously clicked Reset, stay in clean state ready for new ingestion
+      if (localStorage.getItem('corvyn_reset') === 'true') {
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       try {
         const demoStatus = await fetchDemoStatus();
@@ -58,6 +64,51 @@ export const App: React.FC = () => {
     };
     initApp();
   }, []);
+
+  const handleReset = async () => {
+    const confirmed = window.confirm(
+      'Are you sure you want to reset all evidence sources?\n\nThis will purge all ingested transaction logs, telecom CDRs, and correlation graphs so you can start clean from new ingestion.'
+    );
+    if (!confirmed) return;
+
+    setLoading(true);
+    try {
+      await resetCases(summary?.case_id);
+      setSummary(null);
+      setSelectedNode(null);
+      setSelectedEdge(null);
+      localStorage.setItem('corvyn_reset', 'true');
+      setToast({
+        message: 'All evidence sources removed. Starting fresh evidence ingestion container.',
+        type: 'info',
+      });
+      // Directly open ingestion modal so investigator can start from ingestion new
+      setIsUploadOpen(true);
+    } catch (err: any) {
+      setToast({
+        message: `Reset failed: ${err.message}`,
+        type: 'error',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRestoreDemo = async () => {
+    setLoading(true);
+    try {
+      localStorage.removeItem('corvyn_reset');
+      const seeded = await seedDemoCase();
+      setSummary(seeded.summary);
+      setSelectedNode(null);
+      setSelectedEdge(null);
+      setToast({ message: 'Synthetic demo dataset loaded successfully.', type: 'success' });
+    } catch (err: any) {
+      setToast({ message: `Failed to load demo: ${err.message}`, type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   const handleRefresh = async () => {
@@ -99,6 +150,7 @@ export const App: React.FC = () => {
         summary={summary}
         onRefresh={handleRefresh}
         onNewCase={() => setIsUploadOpen(true)}
+        onReset={handleReset}
         onOpenBrief={() => setIsBriefOpen(true)}
         loading={loading}
       />
@@ -182,12 +234,17 @@ export const App: React.FC = () => {
             </h2>
 
             <p style={{ color: 'var(--text-secondary)', fontSize: '13px', lineHeight: 1.6, marginBottom: '24px', maxWidth: '480px', margin: '0 auto 24px' }}>
-              Ingest telecom CDRs and banking settlement logs to reconstruct multi-hop mule networks, compute SHA-256 digests, and generate court-admissible forensic briefs.
+              All sources have been cleared. Ingest telecom CDRs, banking settlement sheets, Android dumps, or IPDR files to reconstruct multi-hop mule networks, compute SHA-256 digests, and generate court-admissible forensic briefs.
             </p>
 
-            <button onClick={() => setIsUploadOpen(true)} className="btn-primary" style={{ margin: '0 auto' }}>
-              <span>+ Ingest Evidence Artifacts</span>
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', flexWrap: 'wrap' }}>
+              <button onClick={() => setIsUploadOpen(true)} className="btn-primary">
+                <span>+ Ingest Evidence Artifacts</span>
+              </button>
+              <button onClick={handleRestoreDemo} className="btn-secondary" title="Restore sample bank and telecom records">
+                <span>Load Synthetic Demo Dataset</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -251,6 +308,7 @@ export const App: React.FC = () => {
         isOpen={isUploadOpen}
         onClose={() => setIsUploadOpen(false)}
         onAnalysisComplete={(newSummary) => {
+          localStorage.removeItem('corvyn_reset');
           setSummary(newSummary);
           setSelectedNode(null);
           setSelectedEdge(null);

@@ -71,3 +71,11 @@ export function getReportDownloadUrl(caseId: string, format: 'pdf' | 'json' = 'p
   return `${API_BASE}/cases/${caseId}/report?format=${format}`;
 }
 
+export async function resetCases(caseId?: string): Promise<{ status: string; message?: string }> {
+  const url = caseId ? `${API_BASE}/cases/${caseId}/reset` : `${API_BASE}/cases/reset`;
+  const res = await fetch(url, { method: 'POST' });
+  if (!res.ok) throw new Error('Failed to reset case evidence sources');
+  return res.json();
+}
+
+
